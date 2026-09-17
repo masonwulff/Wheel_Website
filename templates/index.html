@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open the Case</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="page">
+
+  <header class="page-header">
+    <h1>Open the case</h1>
+    <p class="subtitle">Enter your items, set drop weights if you want, and open it. Rarer items get rarer colors.</p>
+  </header>
+
+  <main class="layout">
+
+    <section class="case-stage">
+      <div class="case-viewport" id="caseViewport">
+        <div class="center-line"></div>
+        <div class="fade fade-left"></div>
+        <div class="fade fade-right"></div>
+        <div class="reel-track" id="reelTrack"></div>
+      </div>
+      <button id="openBtn" class="open-btn">Open case</button>
+      <p id="result" class="result" aria-live="polite"></p>
+    </section>
+
+    <section class="controls">
+      <label for="choicesInput">Items</label>
+      <textarea id="choicesInput" rows="6" placeholder="AK-47 Redline, AWP Asiimov, M4A4 Howl, Karambit">AK-47 Redline, AWP Asiimov, M4A4 Howl, Karambit</textarea>
+
+      <label for="weightsInput">Drop weights <span class="hint">(optional, same order as items)</span></label>
+      <textarea id="weightsInput" rows="2" placeholder="e.g. 40, 30, 20, 1 -- leave blank for equal odds"></textarea>
+
+      <button id="updateBtn" class="update-btn">Update case</button>
+
+      <p class="note">Weight sets the real odds of winning -- that's what the server uses to pick. An item's color tier is just for looks: the lower its odds relative to the others, the rarer color it gets, same idea as CS2's Consumer → Covert scale.</p>
+    </section>
+
+  </main>
+</div>
+
+<script src="{{ url_for('static', filename='js/case.js') }}"></script>
+</body>
+</html>
