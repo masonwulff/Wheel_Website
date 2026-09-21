@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% import "_icons.html" as icons %}
+{% block title %}{{ case.name }} items{% endblock %}
+{% block content %}
+
+<header class="page-header">
+  <a href="{{ url_for('cases_page') }}" class="back-link">← All cases</a>
+  <h1>{{ case.name }}</h1>
+  <p class="subtitle">{{ items | length }} items. Drop chance is shown on each card.</p>
+</header>
+
+<div class="skin-grid">
+  {% for item in items %}
+  {% set parts = item.name.split('|') %}
+  <div class="skin-card" style="--tier-color: {{ item.color }};">
+    <div class="skin-art">
+      {% if '★' in item.name %}
+        {{ icons.knife_icon() }}
+      {% else %}
+        {{ icons.gun_icon() }}
+      {% endif %}
+    </div>
+    <div class="skin-info">
+      <div class="skin-weapon">{{ parts[0].strip() }}</div>
+      {% if parts | length > 1 %}
+      <div class="skin-finish">{{ parts[1].strip() }}</div>
+      {% endif %}
+    </div>
+    <div class="skin-meta">
+      <span class="skin-tier-chip">{{ item.tier }}</span>
+      <span class="skin-chance">{{ item.weight }}%</span>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<a href="{{ url_for('open_page', case_id=case.id) }}" class="open-cta">Open this case →</a>
+
+{% endblock %}

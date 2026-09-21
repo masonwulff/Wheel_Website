@@ -1,9 +1,15 @@
+const caseTile = document.getElementById("caseTile");
+const caseNameLabel = document.getElementById("caseNameLabel");
+const rarityBar = document.getElementById("rarityBar");
+const caseHint = document.getElementById("caseHint");
 const viewport = document.getElementById("caseViewport");
 const track = document.getElementById("reelTrack");
-const openBtn = document.getElementById("openBtn");
 const resultEl = document.getElementById("result");
+
+const caseNameInput = document.getElementById("caseNameInput");
 const choicesInput = document.getElementById("choicesInput");
 const weightsInput = document.getElementById("weightsInput");
+const weightTotalEl = document.getElementById("weightTotal");
 const updateBtn = document.getElementById("updateBtn");
 
 // CS2's real rarity ladder, rarest to most common.
@@ -17,34 +23,30 @@ const TIERS = [
 ];
 
 const ITEM_W = 140;
-const GAP = 12;
-const SLOT = ITEM_W + GAP;
 const LANDING_INDEX = 55;
 const ITEMS_AFTER_LANDING = 8;
 
-let items = []; // [{label, weight, color, tierName}], one per user-entered choice
+let items = []; // [{label, weight, color, tierName}] -- weight is a % of 100
+
+function parsePercentWeights(rawList, count) {
+  const parsed = rawList.split(",").map((w) => parseFloat(w.trim()));
+  const valid = parsed.length === count && parsed.every((w) => !isNaN(w) && w > 0);
+  if (valid) return parsed;
+  return Array(count).fill(+(100 / count).toFixed(2));
+}
 
 function parseInputs() {
   const choices = choicesInput.value
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
-
-  const rawWeights = weightsInput.value.trim();
-  let weights = [];
-  if (rawWeights) {
-    weights = rawWeights.split(",").map((w) => parseFloat(w.trim()));
-  }
-  if (weights.length !== choices.length || weights.some((w) => isNaN(w) || w <= 0)) {
-    weights = choices.map(() => 1);
-  }
-
+  const weights = parsePercentWeights(weightsInput.value.trim(), choices.length);
   return { choices, weights };
 }
 
 // Colors are cosmetic only -- they never touch who actually wins.
-// An item's tier is based on how its weight ranks against the others,
-// so equal weights always get the same (neutral) tier instead of a
+// An item's tier is based on how its % ranks against the others, so
+// equal percentages always get the same (neutral) tier instead of a
 // misleading spread of rarities.
 function assignTiers(choices, weights) {
   const uniqueSorted = [...new Set(weights)].sort((a, b) => a - b);
@@ -61,7 +63,7 @@ function assignTiers(choices, weights) {
 
   return choices.map((label, i) => {
     const w = weights[i];
-    const pos = uniqueSorted.indexOf(w); // 0 = the rarest weight value
+    const pos = uniqueSorted.indexOf(w); // 0 = the rarest % value
     const bucket = Math.min(
       TIERS.length - 1,
       Math.floor((pos / uniqueSorted.length) * TIERS.length)
@@ -89,14 +91,53 @@ function makeCard(item) {
   return el;
 }
 
+function updateWeightTotal(weights, wasTyped) {
+  if (!wasTyped) {
+    weightTotalEl.textContent = "Equal odds for all items (100% split evenly).";
+    weightTotalEl.className = "weight-total";
+    return;
+  }
+  const sum = weights.reduce((a, b) => a + b, 0);
+  const rounded = Math.round(sum * 100) / 100;
+  weightTotalEl.textContent = `Total: ${rounded}%`;
+  weightTotalEl.className =
+    "weight-total " + (Math.abs(sum - 100) < 0.5 ? "is-good" : "is-off");
+}
+
+function updateCaseTile() {
+  caseNameLabel.textContent = caseNameInput.value.trim() || "My Case";
+
+  rarityBar.innerHTML = "";
+  const totalWeight = items.reduce((sum, it) => sum + it.weight, 0);
+  let rarestColor = items[0] ? items[0].color : "#F2B705";
+  let rarestBucket = -1;
+
+  items.forEach((item) => {
+    const seg = document.createElement("span");
+    seg.style.width = `${(item.weight / totalWeight) * 100}%`;
+    seg.style.backgroundColor = item.color;
+    rarityBar.appendChild(seg);
+
+    const bucket = TIERS.findIndex((t) => t.color === item.color);
+    if (bucket > rarestBucket) {
+      rarestBucket = bucket;
+      rarestColor = item.color;
+    }
+  });
+
+  caseTile.style.setProperty("--tier-accent", rarestColor);
+}
+
 function rebuildCase() {
   const { choices, weights } = parseInputs();
   items = assignTiers(choices, weights);
   resultEl.textContent = "";
+  updateWeightTotal(weights, weightsInput.value.trim().length > 0);
+  updateCaseTile();
   renderIdleReel();
 }
 
-// A calm, non-spinning fill just so the case isn't empty before opening.
+// A calm, non-spinning fill so the reel isn't empty before opening.
 function renderIdleReel() {
   track.innerHTML = "";
   track.style.transition = "none";
@@ -129,7 +170,8 @@ async function openCase() {
     return;
   }
 
-  openBtn.disabled = true;
+  caseTile.disabled = true;
+  caseHint.textContent = "Opening...";
   resultEl.textContent = "";
 
   const choices = items.map((it) => it.label);
@@ -146,7 +188,8 @@ async function openCase() {
     winnerLabel = data.choice;
   } catch (err) {
     resultEl.textContent = "Something went wrong reaching the server.";
-    openBtn.disabled = false;
+    caseTile.disabled = false;
+    caseHint.textContent = "Click to open";
     return;
   }
 
@@ -181,13 +224,17 @@ async function openCase() {
     () => {
       landingCard.classList.add("winner");
       resultEl.textContent = `Unboxed: ${winnerLabel}`;
-      openBtn.disabled = false;
+      caseTile.disabled = false;
+      caseHint.textContent = "Click to open again";
     },
     { once: true }
   );
 }
 
 updateBtn.addEventListener("click", rebuildCase);
-openBtn.addEventListener("click", openCase);
+caseNameInput.addEventListener("input", () => {
+  caseNameLabel.textContent = caseNameInput.value.trim() || "My Case";
+});
+caseTile.addEventListener("click", openCase);
 
 rebuildCase();

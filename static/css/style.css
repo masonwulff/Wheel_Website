@@ -5,6 +5,8 @@
   --text-dim: #A7ACC2;
   --accent: #F2B705;
   --border: #33384D;
+  --good: #4FD17A;
+  --warn: #E8A23C;
 }
 
 * {
@@ -19,10 +21,55 @@ body {
   min-height: 100vh;
 }
 
+a {
+  color: inherit;
+}
+
+/* --- Top nav --- */
+
+.topnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.topnav-brand {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 1.05rem;
+}
+
+.topnav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.topnav-links a {
+  text-decoration: none;
+  color: var(--text-dim);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;
+}
+
+.topnav-links a:hover,
+.topnav-links a.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+/* --- Shared page shell --- */
+
 .page {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 48px 24px 64px;
+  padding: 40px 24px 64px;
 }
 
 .page-header h1 {
@@ -35,6 +82,22 @@ body {
   color: var(--text-dim);
   margin: 0 0 40px;
   max-width: 60ch;
+}
+
+.subtitle a {
+  color: var(--accent);
+}
+
+.back-link {
+  display: inline-block;
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+.back-link:hover {
+  color: var(--accent);
 }
 
 .layout {
@@ -50,7 +113,257 @@ body {
   }
 }
 
-/* --- Case-opening reel --- */
+/* --- Cases grid (cases list page) --- */
+
+.case-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+.case-card {
+  --tier-accent: var(--accent);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.case-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--tier-accent);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.35), 0 0 18px -4px var(--tier-accent);
+}
+
+.case-item-count {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.case-card-actions {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.case-action-link {
+  flex: 1;
+  text-align: center;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 8px 6px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.case-action-link:hover {
+  border-color: var(--tier-accent);
+  color: var(--tier-accent);
+}
+
+.case-action-link.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #1B1E2B;
+}
+
+.case-action-link.primary:hover {
+  color: #1B1E2B;
+  opacity: 0.9;
+}
+
+/* --- Case tile (art + name + rarity bar), reused on cases grid / open / custom --- */
+
+.case-art {
+  position: relative;
+  width: 130px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #3A3F58 0%, #23273A 55%, #1B1E2B 100%);
+  border: 2px solid var(--tier-accent, var(--accent));
+  box-shadow: inset 0 0 18px rgba(0,0,0,0.5);
+}
+
+.case-art::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 6%;
+  right: 6%;
+  height: 2px;
+  background: rgba(0,0,0,0.4);
+  transform: translateY(-1px);
+}
+
+.case-art-shine {
+  position: absolute;
+  top: -40%;
+  left: -20%;
+  width: 60%;
+  height: 180%;
+  background: linear-gradient(120deg, rgba(255,255,255,0.16), transparent 60%);
+  transform: rotate(20deg);
+}
+
+.case-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  text-align: center;
+}
+
+.rarity-bar {
+  width: 100%;
+  height: 7px;
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+  background: var(--bg);
+}
+
+.rarity-bar span {
+  height: 100%;
+  display: block;
+}
+
+/* --- Clickable case tile (open + custom pages) --- */
+
+.case-tile {
+  --tier-accent: var(--accent);
+  width: 220px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.case-tile:hover {
+  transform: translateY(-3px);
+  border-color: var(--tier-accent);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.35), 0 0 18px -4px var(--tier-accent);
+}
+
+.case-tile:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+  box-shadow: none;
+}
+
+.case-hint {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+}
+
+.case-tile:hover .case-hint {
+  color: var(--tier-accent);
+}
+
+/* --- Skin grid (items page) --- */
+
+.skin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.skin-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--tier-color, var(--text-dim));
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.skin-art {
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--tier-color, var(--text-dim)) 28%, var(--bg)), var(--bg));
+}
+
+.weapon-icon {
+  width: 70%;
+  color: rgba(241, 239, 233, 0.85);
+}
+
+.skin-info {
+  padding: 10px 12px 4px;
+  min-height: 52px;
+}
+
+.skin-weapon {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 0.88rem;
+  line-height: 1.25;
+}
+
+.skin-finish {
+  font-size: 0.82rem;
+  color: var(--tier-color, var(--text-dim));
+  line-height: 1.25;
+}
+
+.skin-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px 12px;
+  margin-top: auto;
+}
+
+.skin-tier-chip {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--tier-color, var(--text-dim));
+}
+
+.skin-chance {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.open-cta {
+  display: inline-block;
+  text-decoration: none;
+  background: var(--accent);
+  color: #1B1E2B;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: 999px;
+}
+
+.open-cta:hover {
+  opacity: 0.9;
+}
+
+/* --- Reel --- */
 
 .case-stage {
   display: flex;
@@ -161,29 +474,6 @@ body {
   transform: scale(1.04);
 }
 
-.open-btn {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  padding: 14px 40px;
-  border-radius: 999px;
-  border: none;
-  background: var(--accent);
-  color: #1B1E2B;
-  cursor: pointer;
-  transition: transform 0.15s ease;
-}
-
-.open-btn:hover {
-  transform: scale(1.04);
-}
-
-.open-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
 .result {
   min-height: 1.5em;
   font-family: 'Space Grotesk', sans-serif;
@@ -191,7 +481,7 @@ body {
   color: var(--accent);
 }
 
-/* --- Controls panel --- */
+/* --- Controls panel (custom builder) --- */
 
 .controls {
   background: var(--panel);
@@ -218,6 +508,7 @@ body {
   font-size: 0.85rem;
 }
 
+.controls input[type="text"],
 .controls textarea {
   width: 100%;
   background: var(--bg);
@@ -230,9 +521,24 @@ body {
   resize: vertical;
 }
 
+.controls input[type="text"]:focus,
 .controls textarea:focus {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
+}
+
+.weight-total {
+  margin: 6px 2px 0;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
+.weight-total.is-good {
+  color: var(--good);
+}
+
+.weight-total.is-off {
+  color: var(--warn);
 }
 
 .update-btn {

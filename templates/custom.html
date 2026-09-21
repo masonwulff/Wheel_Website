@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Build your own case{% endblock %}
+{% block content %}
+
+<header class="page-header">
+  <h1>Build your own case</h1>
+  <p class="subtitle">Enter your own items and drop chances, then click the case to open it.</p>
+</header>
+
+<main class="layout">
+
+  <section class="case-stage">
+    <button id="caseTile" class="case-tile" type="button">
+      <span class="case-art"><span class="case-art-shine"></span></span>
+      <span class="case-name" id="caseNameLabel">My Case</span>
+      <span class="rarity-bar" id="rarityBar"></span>
+      <span class="case-hint" id="caseHint">Click to open</span>
+    </button>
+
+    <div class="case-viewport" id="caseViewport">
+      <div class="center-line"></div>
+      <div class="fade fade-left"></div>
+      <div class="fade fade-right"></div>
+      <div class="reel-track" id="reelTrack"></div>
+    </div>
+
+    <p id="result" class="result" aria-live="polite"></p>
+  </section>
+
+  <section class="controls">
+    <label for="caseNameInput">Case name</label>
+    <input type="text" id="caseNameInput" value="My Case" maxlength="40">
+
+    <label for="choicesInput">Items</label>
+    <textarea id="choicesInput" rows="6" placeholder="AK-47 Redline, AWP Asiimov, M4A4 Howl, Karambit">AK-47 Redline, AWP Asiimov, M4A4 Howl, Karambit</textarea>
+
+    <label for="weightsInput">Drop chance <span class="hint">(% -- should add up to 100)</span></label>
+    <textarea id="weightsInput" rows="2" placeholder="e.g. 40, 30, 20, 10">40, 30, 20, 10</textarea>
+    <p id="weightTotal" class="weight-total"></p>
+
+    <button id="updateBtn" class="update-btn">Update case</button>
+
+    <p class="note">Drop chance is the real odds of winning -- that's what the server uses to pick. Each item's color is just for looks: lower odds get rarer colors, same idea as CS2's Consumer → Covert scale.</p>
+  </section>
+
+</main>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/tiers.js') }}"></script>
+<script src="{{ url_for('static', filename='js/reel.js') }}"></script>
+<script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+{% endblock %}

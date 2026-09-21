@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Cases{% endblock %}
+{% block content %}
+
+<header class="page-header">
+  <h1>Choose a case</h1>
+  <p class="subtitle">Pick a case to see what's inside, or jump straight to opening it.</p>
+</header>
+
+<div class="case-grid">
+  {% for case in cases %}
+  {% set total = case['items'] | sum(attribute='weight') %}
+  {% set rarest = (case['items'] | sort(attribute='weight'))[0] %}
+  <div class="case-card" style="--tier-accent: {{ rarest.color }};">
+    <span class="case-art"><span class="case-art-shine"></span></span>
+    <span class="case-name">{{ case.name }}</span>
+    <span class="rarity-bar">
+      {% for item in case['items'] %}
+      <span style="width: {{ (item.weight / total * 100) | round(2) }}%; background-color: {{ item.color }};"></span>
+      {% endfor %}
+    </span>
+    <span class="case-item-count">{{ case['items'] | length }} items</span>
+    <span class="case-card-actions">
+      <a href="{{ url_for('items_page', case_id=case.id) }}" class="case-action-link">View items</a>
+      <a href="{{ url_for('open_page', case_id=case.id) }}" class="case-action-link primary">Open</a>
+    </span>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

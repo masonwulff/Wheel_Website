@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Open {{ case.name }}{% endblock %}
+{% block content %}
+
+<header class="page-header">
+  <a href="{{ url_for('cases_page') }}" class="back-link">← All cases</a>
+  <h1>{{ case.name }}</h1>
+  <p class="subtitle"><a href="{{ url_for('items_page', case_id=case.id) }}">View all {{ items | length }} items</a>, or click the case below to open it.</p>
+</header>
+
+<section class="case-stage">
+  {% set total = items | sum(attribute='weight') %}
+  {% set rarest = (items | sort(attribute='weight'))[0] %}
+  <button id="caseTile" class="case-tile" type="button" style="--tier-accent: {{ rarest.color }};">
+    <span class="case-art"><span class="case-art-shine"></span></span>
+    <span class="case-name">{{ case.name }}</span>
+    <span class="rarity-bar">
+      {% for item in items %}
+      <span style="width: {{ (item.weight / total * 100) | round(2) }}%; background-color: {{ item.color }};"></span>
+      {% endfor %}
+    </span>
+    <span class="case-hint" id="caseHint">Click to open</span>
+  </button>
+
+  <div class="case-viewport" id="caseViewport">
+    <div class="center-line"></div>
+    <div class="fade fade-left"></div>
+    <div class="fade fade-right"></div>
+    <div class="reel-track" id="reelTrack"></div>
+  </div>
+
+  <p id="result" class="result" aria-live="polite"></p>
+</section>
+
+<script type="application/json" id="caseItems">{{ items | tojson }}</script>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/reel.js') }}"></script>
+<script src="{{ url_for('static', filename='js/open-page.js') }}"></script>
+{% endblock %}
