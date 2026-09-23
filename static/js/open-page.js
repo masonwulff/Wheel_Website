@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     weight: it.weight,
     color: it.color,
     tierName: it.tier,
+    icon: it.icon,
   }));
 
   const caseTile = document.getElementById("caseTile");

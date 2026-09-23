@@ -17,7 +17,19 @@ const Reel = (() => {
     const el = document.createElement("div");
     el.className = "item-card";
     el.style.setProperty("--tier-color", item.color);
-    el.textContent = item.label;
+
+    if (item.icon) {
+      const iconEl = document.createElement("span");
+      iconEl.className = "item-card-icon";
+      iconEl.textContent = item.icon;
+      el.appendChild(iconEl);
+    }
+
+    const labelEl = document.createElement("span");
+    labelEl.className = "item-card-label";
+    labelEl.textContent = item.label;
+    el.appendChild(labelEl);
+
     return el;
   }
 

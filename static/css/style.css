@@ -279,6 +279,17 @@ a {
 
 /* --- Skin grid (items page) --- */
 
+.items-preview {
+  margin-top: 40px;
+}
+
+.items-preview-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  margin: 0 0 16px;
+  color: var(--text-dim);
+}
+
 .skin-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -307,6 +318,12 @@ a {
 .weapon-icon {
   width: 70%;
   color: rgba(241, 239, 233, 0.85);
+}
+
+.skin-emoji {
+  font-size: 2.4rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.35));
 }
 
 .skin-info {
@@ -457,16 +474,26 @@ a {
   border: 1px solid var(--border);
   border-top: 4px solid var(--tier-color, var(--text-dim));
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   text-align: center;
   padding: 12px 8px;
+  color: var(--text);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.item-card-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.item-card-label {
   font-family: 'Space Grotesk', sans-serif;
   font-weight: 600;
   font-size: 0.9rem;
   line-height: 1.3;
-  color: var(--text);
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .item-card.winner {

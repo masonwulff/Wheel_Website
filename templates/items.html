@@ -14,7 +14,9 @@
   {% set parts = item.name.split('|') %}
   <div class="skin-card" style="--tier-color: {{ item.color }};">
     <div class="skin-art">
-      {% if '★' in item.name %}
+      {% if item.icon %}
+        <span class="skin-emoji">{{ item.icon }}</span>
+      {% elif '★' in item.name %}
         {{ icons.knife_icon() }}
       {% else %}
         {{ icons.gun_icon() }}

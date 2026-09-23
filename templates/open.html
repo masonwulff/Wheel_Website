@@ -1,11 +1,12 @@
 {% extends "base.html" %}
+{% import "_icons.html" as icons %}
 {% block title %}Open {{ case.name }}{% endblock %}
 {% block content %}
 
 <header class="page-header">
   <a href="{{ url_for('cases_page') }}" class="back-link">← All cases</a>
   <h1>{{ case.name }}</h1>
-  <p class="subtitle"><a href="{{ url_for('items_page', case_id=case.id) }}">View all {{ items | length }} items</a>, or click the case below to open it.</p>
+  <p class="subtitle">Click the case to open it. Its {{ items | length }} possible items are listed below.</p>
 </header>
 
 <section class="case-stage">
@@ -30,6 +31,36 @@
   </div>
 
   <p id="result" class="result" aria-live="polite"></p>
+</section>
+
+<section class="items-preview">
+  <h2 class="items-preview-title">What's in this case</h2>
+  <div class="skin-grid">
+    {% for item in items %}
+    {% set parts = item.name.split('|') %}
+    <div class="skin-card" style="--tier-color: {{ item.color }};">
+      <div class="skin-art">
+        {% if item.icon %}
+          <span class="skin-emoji">{{ item.icon }}</span>
+        {% elif '★' in item.name %}
+          {{ icons.knife_icon() }}
+        {% else %}
+          {{ icons.gun_icon() }}
+        {% endif %}
+      </div>
+      <div class="skin-info">
+        <div class="skin-weapon">{{ parts[0].strip() }}</div>
+        {% if parts | length > 1 %}
+        <div class="skin-finish">{{ parts[1].strip() }}</div>
+        {% endif %}
+      </div>
+      <div class="skin-meta">
+        <span class="skin-tier-chip">{{ item.tier }}</span>
+        <span class="skin-chance">{{ item.weight }}%</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
 </section>
 
 <script type="application/json" id="caseItems">{{ items | tojson }}</script>
