@@ -2,6 +2,45 @@ const Reel = (() => {
   const ITEM_W = 140;
   const LANDING_INDEX = 55;
   const ITEMS_AFTER_LANDING = 8;
+  const SLOT = ITEM_W + 12; // card width + the 12px flex gap in the track
+
+  // 0 = most common item in the case, 1 = rarest. Based on how the
+  // winner's weight ranks among the distinct weights, so it scales to
+  // any case. If every weight is equal there's no "rare", so stay mild.
+  function rarityLevel(items, winnerItem) {
+    const unique = [...new Set(items.map((it) => it.weight))].sort((a, b) => a - b);
+    if (unique.length <= 1) return 0.35;
+    const pos = unique.indexOf(winnerItem.weight); // 0 = rarest
+    return 1 - pos / (unique.length - 1);
+  }
+
+  // While the track is mid-transition, read its live translateX each
+  // frame and fire a tick whenever a new card crosses the center line.
+  // The first card's left edge sits at the viewport's midpoint (the
+  // track's 50% left padding), so the card under the line is simply
+  // floor(-translateX / SLOT).
+  function startTicks(track) {
+    let lastIndex = null;
+    let lastTickAt = 0;
+    let running = true;
+
+    function frame(now) {
+      if (!running) return;
+      const tx = new DOMMatrixReadOnly(getComputedStyle(track).transform).m41;
+      const index = Math.floor(-tx / SLOT);
+      if (lastIndex !== null && index !== lastIndex && now - lastTickAt > 30) {
+        if (window.Celebration) Celebration.tick();
+        lastTickAt = now;
+      }
+      lastIndex = index;
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+    return () => {
+      running = false;
+    };
+  }
 
   function weightedRandomItem(items) {
     const total = items.reduce((sum, it) => sum + it.weight, 0);
@@ -73,6 +112,14 @@ const Reel = (() => {
     caseTile.disabled = true;
     caseHint.textContent = "Opening...";
     resultEl.textContent = "";
+    viewport.classList.remove("celebrate");
+
+    // This runs inside the click handler, which is the user gesture
+    // browsers require before they'll play any audio.
+    if (window.Celebration) {
+      Celebration.unlock();
+      Celebration.openSound();
+    }
 
     const choices = items.map((it) => it.label);
     const weights = items.map((it) => it.weight);
@@ -119,16 +166,32 @@ const Reel = (() => {
     track.style.transition = "transform 5.5s cubic-bezier(0.12, 0.68, 0.1, 1)";
     track.style.transform = `translateY(-50%) translateX(${-delta}px)`;
 
-    track.addEventListener(
-      "transitionend",
-      () => {
-        landingCard.classList.add("winner");
-        resultEl.textContent = `Unboxed: ${winnerLabel}`;
-        caseTile.disabled = false;
-        caseHint.textContent = "Click to open again";
-      },
-      { once: true }
-    );
+    const stopTicks = startTicks(track);
+    const winnerItem = items.find((it) => it.label === winnerLabel) || items[0];
+
+    function onDone(e) {
+      // Card hover/winner transitions bubble up to the track; only the
+      // track's own transform transition means the spin has finished.
+      if (e.target !== track || e.propertyName !== "transform") return;
+      track.removeEventListener("transitionend", onDone);
+      stopTicks();
+
+      landingCard.classList.add("winner");
+      resultEl.textContent = `Unboxed: ${winnerLabel}`;
+      caseTile.disabled = false;
+      caseHint.textContent = "Click to open again";
+
+      const level = rarityLevel(items, winnerItem);
+      viewport.style.setProperty("--win-color", winnerItem.color);
+      viewport.classList.add("celebrate");
+
+      if (window.Celebration) {
+        const rect = viewport.getBoundingClientRect();
+        Celebration.winSound(level);
+        Celebration.confetti(rect.left + rect.width / 2, rect.top + rect.height / 2, winnerItem.color, level);
+      }
+    }
+    track.addEventListener("transitionend", onDone);
   }
 
   return { renderIdleReel, buildReelForWinner, openCase, weightedRandomItem, makeCard };

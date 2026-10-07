@@ -25,6 +25,7 @@
     </div>
 
     <p id="result" class="result" aria-live="polite"></p>
+    <button id="muteBtn" class="mute-btn" type="button">🔊 Sound on</button>
   </section>
 
   <section class="controls">
@@ -49,6 +50,7 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/tiers.js') }}"></script>
+<script src="{{ url_for('static', filename='js/celebration.js') }}"></script>
 <script src="{{ url_for('static', filename='js/reel.js') }}"></script>
 <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
 {% endblock %}
